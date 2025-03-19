@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pl" manifest="cache.manifest">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ładowanie JSON z jQuery</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $.getJSON("przyklad.json", function(data) {
+                let output = "<h2>Lista użytkowników:</h2><ul>";
+                $.each(data.users, function(index, user) {
+                    output += `<li>${user.name}, wiek: ${user.age}</li>`;
+                });
+                output += "</ul>";
+                $("#content").html(output);
+            }).fail(function() {
+                $("#content").html("<p>Błąd wczytywania danych.</p>");
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Przykład wczytywania JSON z pliku</h1>
+    <div id="content">Ładowanie danych...</div>
+</body>
+</html>
