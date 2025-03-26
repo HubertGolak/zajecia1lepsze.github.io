@@ -16,59 +16,47 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            let deferredPrompt;
+            const installButton = document.getElementById("installPWA");
         
-        if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.register("service-worker.js")
-                .then(() => console.log("✅ Service Worker zarejestrowany"))
-                .catch(err => console.log("❌ Błąd SW:", err));
-        }
-
-       
-        $(document).ready(function() {
-            $.getJSON("przyklad.json", function(data) {
-                let output = "<h2>Lista użytkowników:</h2><ul>";
-                $.each(data.users, function(index, user) {
-                    output += `<li>${user.name}, wiek: ${user.age}</li>`;
-                });
-                output += "</ul>";
-                $("#content").html(output);
-            }).fail(function() {
-                $("#content").html("<p>Błąd wczytywania danych.</p>");
+            if (!installButton) {
+                console.error("❌ Brak przycisku #installPWA w HTML!");
+                return;
+            }
+        
+            window.addEventListener("beforeinstallprompt", (event) => {
+                event.preventDefault();
+                deferredPrompt = event;
+                installButton.style.display = "block";
+            });
+        
+            installButton.addEventListener("click", () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === "accepted") {
+                            console.log("✅ Użytkownik zainstalował PWA");
+                        }
+                        deferredPrompt = null;
+                        installButton.style.display = "none";
+                    });
+                }
+            });
+        
+            window.addEventListener("appinstalled", () => {
+                console.log("📲 Aplikacja została zainstalowana");
+                installButton.style.display = "none";
             });
         });
-
-        // Przycisk instalacji PWA
-        let deferredPrompt;
-        window.addEventListener("beforeinstallprompt", (event) => {
-            event.preventDefault();
-            deferredPrompt = event;
-            document.getElementById("installPWA").style.display = "block";
-        });
-
-        document.getElementById("installPWA").addEventListener("click", () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === "accepted") {
-                        console.log("✅ Użytkownik zainstalował PWA");
-                    }
-                    deferredPrompt = null;
-                    document.getElementById("installPWA").style.display = "none";
-                });
-            }
-        });
-
-        window.addEventListener("appinstalled", () => {
-            console.log("📲 Aplikacja została zainstalowana");
-            document.getElementById("installPWA").style.display = "none";
-        });
-    </script>
+        </script>
 </head>
 <body>
     <h1>Przykład wczytywania JSON z pliku (PWA)</h1>
     <div id="content">Ładowanie danych...</div>
     
   
-    <button id="installPWA">📲 Zainstaluj aplikację</button>
+    <button id="installPWA" 
+>📲 Zainstaluj aplikację</button>
 </body>
 </html>
