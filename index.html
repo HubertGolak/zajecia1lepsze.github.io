@@ -4,15 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ładowanie JSON z jQuery (PWA)</title>
+    
+ 
     <link rel="manifest" href="manifest.json">
+    
+   
+    <link rel="apple-touch-icon" sizes="192x192" href="icons/mały.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/duży.jpeg">
+    
+    <meta name="theme-color" content="#2196f3">
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.register("service-worker.js")
-                .then(() => console.log("Service Worker zarejestrowany"))
-                .catch(err => console.log("Błąd SW:", err));
+                .then(() => console.log("✅ Service Worker zarejestrowany"))
+                .catch(err => console.log("❌ Błąd SW:", err));
         }
 
+       
         $(document).ready(function() {
             $.getJSON("przyklad.json", function(data) {
                 let output = "<h2>Lista użytkowników:</h2><ul>";
@@ -25,10 +36,39 @@
                 $("#content").html("<p>Błąd wczytywania danych.</p>");
             });
         });
+
+        // Przycisk instalacji PWA
+        let deferredPrompt;
+        window.addEventListener("beforeinstallprompt", (event) => {
+            event.preventDefault();
+            deferredPrompt = event;
+            document.getElementById("installPWA").style.display = "block";
+        });
+
+        document.getElementById("installPWA").addEventListener("click", () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === "accepted") {
+                        console.log("✅ Użytkownik zainstalował PWA");
+                    }
+                    deferredPrompt = null;
+                    document.getElementById("installPWA").style.display = "none";
+                });
+            }
+        });
+
+        window.addEventListener("appinstalled", () => {
+            console.log("📲 Aplikacja została zainstalowana");
+            document.getElementById("installPWA").style.display = "none";
+        });
     </script>
 </head>
 <body>
     <h1>Przykład wczytywania JSON z pliku (PWA)</h1>
     <div id="content">Ładowanie danych...</div>
+    
+    <!-- Przycisk instalacji PWA -->
+    <button id="installPWA" style="display: none;">📲 Zainstaluj aplikację</button>
 </body>
 </html>
