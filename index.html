@@ -1,11 +1,18 @@
 <!DOCTYPE html>
-<html lang="pl" manifest="cache.manifest">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ładowanie JSON z jQuery</title>
+    <title>Ładowanie JSON z jQuery (PWA)</title>
+    <link rel="manifest" href="manifest.json">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("service-worker.js")
+                .then(() => console.log("Service Worker zarejestrowany"))
+                .catch(err => console.log("Błąd SW:", err));
+        }
+
         $(document).ready(function() {
             $.getJSON("przyklad.json", function(data) {
                 let output = "<h2>Lista użytkowników:</h2><ul>";
@@ -21,7 +28,7 @@
     </script>
 </head>
 <body>
-    <h1>Przykład wczytywania JSON z pliku</h1>
+    <h1>Przykład wczytywania JSON z pliku (PWA)</h1>
     <div id="content">Ładowanie danych...</div>
 </body>
 </html>
